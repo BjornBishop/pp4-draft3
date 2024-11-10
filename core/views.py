@@ -21,14 +21,18 @@ def login_view(request):
     return render(request, 'registration/login.html')  # Updated this line
 
 def signup_view(request):
+    print("Signup view called")  # Debug print
     if request.method == 'POST':
+        print("POST request received")  # Debug print
         # Get form data
-        first_name = request.POST['first_name']
-        last_name = request.POST['last_name']
-        email = request.POST['email']
-        phone_number = request.POST['phone_number']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone_number = request.POST.get('phone_number')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        print(f"Received data: {first_name}, {last_name}, {email}")  # Debug print
         
         # Validate passwords match
         if password1 != password2:
@@ -49,13 +53,15 @@ def signup_view(request):
                 first_name=first_name,
                 last_name=last_name
             )
+            print(f"User created: {user}")  # Debug print
             
             # Log user in
             login(request, user)
             return redirect('dashboard')
             
         except Exception as e:
-            messages.error(request, "Error creating account")
+            print(f"Error: {e}")  # Debug print
+            messages.error(request, str(e))
             return render(request, 'registration/signup.html')
             
     return render(request, 'registration/signup.html')

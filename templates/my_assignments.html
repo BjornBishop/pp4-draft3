@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .my-assignments-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: #f8f9fa;
+    }
+    
+    .assignments-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        padding: 2rem;
+    }
+    
+    .assignment-card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 1rem;
+        background: white;
+        position: relative;
+    }
+    
+    .assignment-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .assignment-detail {
+        color: #666;
+        margin-bottom: 0.3rem;
+    }
+    
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .edit-btn {
+        background-color: #28a745;
+    }
+    
+    .delete-btn {
+        background-color: #dc3545;
+    }
+</style>
+
+<div class="my-assignments-header">
+    <h1>My Assignments</h1>
+    <a href="{% url 'create_assignment' %}" style="text-decoration: none;">
+        <button>Create New Assignment</button>
+    </a>
+</div>
+
+<div class="assignments-grid">
+    {% for assignment in assignments %}
+    <div class="assignment-card">
+        <div class="assignment-title">{{ assignment.title }}</div>
+        <div class="assignment-detail">Industry: {{ assignment.get_industry_display }}</div>
+        <div class="assignment-detail">Duration: {{ assignment.duration }} days</div>
+        <div class="assignment-detail">Rate: ${{ assignment.rate }}/day</div>
+        <div class="card-actions">
+            <a href="{% url 'assignment_detail' assignment.id %}">
+                <button>View</button>
+            </a>
+            <form method="post" action="{% url 'delete_assignment' assignment.id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this assignment?')">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+        <p>You haven't created any assignments yet.</p>
+        <a href="{% url 'create_assignment' %}">
+            <button>Create Your First Assignment</button>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

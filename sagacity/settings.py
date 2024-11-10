@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+# CSRF imports 
+from corsheaders.middleware.cors import CorsMiddleware
+from django.middleware.csrf import CsrfViewMiddleware
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +27,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'REMOVED_SECRET_KEY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True # Only for development! 
+
+# Added CORS and CSRF settings
+CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.gitpod.io',
+    'https://*.ws-eu116.gitpod.io'
+]
+
+CSRF_COOKIE_SECURE = True # added this line
 
 ALLOWED_HOSTS = ['8000-bjornbishop-pp4draft3-t6cflytt14b.ws-eu116.gitpod.io']
 
@@ -38,10 +50,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
+    'corsheaders', # added this line
+    'core', # added this line
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # added this line
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
