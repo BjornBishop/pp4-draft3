@@ -42,8 +42,8 @@ def dashboard(request):
     return render(request, 'dashboard.html', {'assignments': assignments})
 
 @login_required
-def assignment_detail(request, pk):
-    assignment = get_object_or_404(Assignment, pk=pk)
+def assignment_detail(request, assignment_id):  # Updated parameter name
+    assignment = get_object_or_404(Assignment, id=assignment_id)  # Updated to use id
     return render(request, 'assignment_detail.html', {'assignment': assignment})
 
 @login_required
@@ -54,12 +54,30 @@ def my_assignments(request):
 @login_required
 def create_assignment(request):
     if request.method == 'POST':
-        form = AssignmentForm(request.POST)
-        if form.is_valid():
-            assignment = form.save(commit=False)
-            assignment.creator = request.user
-            assignment.save()
+        # Check if description contains contact details (basic check)
+        description = request.POST.get('description', '').lower()
+        contact_keywords = ['email', '@', 'phone', 'contact', 'call', 'whatsapp', 'telegram']
+        
+        if any(keyword in description for keyword in contact_keywords):
+            messages.error(request, 'Description cannot contain contact information')
+            return render(request, 'create_assignment.html')
+        
+        # Create new assignment
+        try:
+            assignment = Assignment.objects.create(
+                creator=request.user,
+                title=request.POST['title'],
+                industry=request.POST['industry'],
+                duration=int(request.POST['duration']),
+                rate=int(request.POST['rate']),
+                requirements=request.POST['requirements'],
+                description=request.POST['description']
+            )
+            messages.success(request, 'Assignment created successfully!')
             return redirect('my_assignments')
-    else:
-        form = AssignmentForm()
-    return render(request, 'create_assignment.html', {'form': form})
+        except ValueError:
+            messages.error(request, 'Please check the duration and rate are valid numbers')
+        except Exception as e:
+            messages.error(request, 'Error creating assignment. Please try again.')
+    
+    return render(request, 'create_assignment.html')

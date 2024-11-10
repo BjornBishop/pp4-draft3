@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .create-assignment-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="create-assignment-container">
+    <h1>Create New Assignment</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="title">Assignment Title</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="industry">Industry</label>
+            <select id="industry" name="industry" required>
+                <option value="">Select Industry</option>
+                <option value="FS">Financial Services</option>
+                <option value="COM">Commercial</option>
+                <option value="IND">Industrial</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="duration">Duration (days)</label>
+            <input type="number" id="duration" name="duration" min="1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="rate">Daily Rate (USD)</label>
+            <input type="number" id="rate" name="rate" min="1" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="requirements">Requirements (Skills)</label>
+            <textarea id="requirements" name="requirements" required 
+                      placeholder="Enter required skills, separated by commas"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" required
+                      placeholder="Describe the assignment (no contact details)"></textarea>
+        </div>
+        
+        {% if form.errors %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div class="error-message">{{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        
+        <button type="submit">Create Assignment</button>
+    </form>
+</div>
+{% endblock %}
