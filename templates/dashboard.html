@@ -23,6 +23,8 @@
         padding: 1rem;
         cursor: pointer;
         transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
     }
     
     .assignment-card:hover {
@@ -53,14 +55,5 @@
 
 <div class="assignments-grid">
     {% for assignment in assignments %}
-    <div class="assignment-card" onclick="window.location='{% url 'assignment_detail' assignment.pk %}'">
-        <div class="assignment-title">{{ assignment.title }}</div>
-        <div class="assignment-detail">Industry: {{ assignment.get_industry_display }}</div>
-        <div class="assignment-detail">Duration: {{ assignment.duration }} days</div>
-        <div class="assignment-detail">Rate: ${{ assignment.rate }}/day</div>
-    </div>
-    {% empty %}
-    <p>No assignments available at the moment.</p>
-    {% endfor %}
-</div>
-{% endblock %}
+    <a href="{% url 'assignment_detail' assignment.id %}" class="assignment-card">
+        <div class="assignment-title
