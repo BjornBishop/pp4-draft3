@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 # CSRF imports 
-from corsheaders.middleware.cors import CorsMiddleware
-from django.middleware.csrf import CsrfViewMiddleware
+# from corsheaders.middleware.cors import CorsMiddleware
+# from django.middleware.csrf import CsrfViewMiddleware
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,12 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders', # added this line
     'core', # added this line
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # added this line
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -141,7 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
 CSRF_TRUSTED_ORIGINS = [
     'https://*.gitpod.io',
-    'https://*.ws-eu116.gitpod.io'
 ]
 
 CSRF_COOKIE_SECURE = True # added this line

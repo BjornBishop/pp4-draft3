@@ -21,15 +21,9 @@
         border: 1px solid #ddd;
         border-radius: 5px;
         padding: 1rem;
-        cursor: pointer;
-        transition: transform 0.2s;
+        background: white;
         text-decoration: none;
         color: inherit;
-    }
-    
-    .assignment-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
     .assignment-title {
@@ -55,5 +49,14 @@
 
 <div class="assignments-grid">
     {% for assignment in assignments %}
-    <a href="{% url 'assignment_detail' assignment.id %}" class="assignment-card">
-        <div class="assignment-title
+        <a href="{% url 'assignment_detail' assignment.id %}" class="assignment-card">
+            <div class="assignment-title">{{ assignment.title }}</div>
+            <div class="assignment-detail">Industry: {{ assignment.get_industry_display }}</div>
+            <div class="assignment-detail">Duration: {{ assignment.duration }} days</div>
+            <div class="assignment-detail">Rate: ${{ assignment.rate }}/day</div>
+        </a>
+    {% empty %}
+        <p>No assignments available at the moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

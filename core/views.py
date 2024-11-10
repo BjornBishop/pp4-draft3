@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from .forms import SignUpForm, AssignmentForm
 from .models import Assignment
 from django.contrib import messages
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # Create your views here.
 
@@ -20,29 +21,34 @@ def login_view(request):
             messages.error(request, 'Invalid email or password.')
     return render(request, 'registration/login.html')  # Updated this line
 
+@ensure_csrf_cookie
 def signup_view(request):
-    print("Signup view called")  # Debug print
+    print("Signup view called")
     if request.method == 'POST':
-        print("POST request received")  # Debug print
-        # Get form data
+        print("POST request received")
+        email = request.POST.get('email')
+        print(f"Checking email: {email}")
+        
+        # Check if email exists
+        existing_user = User.objects.filter(email=email)
+        print(f"Existing user query result: {existing_user.exists()}")
+        
+        if existing_user.exists():
+            print(f"Found existing user with this email")
+            messages.error(request, "Email already registered")
+            return render(request, 'registration/signup.html')
+        
+        # If we get here, the email is not registered
+        print("Email is not registered, proceeding with registration")
+        
+        # Get the rest of the form data
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
         phone_number = request.POST.get('phone_number')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
         
-        print(f"Received data: {first_name}, {last_name}, {email}")  # Debug print
-        
-        # Validate passwords match
-        if password1 != password2:
-            messages.error(request, "Passwords don't match")
-            return render(request, 'registration/signup.html')
-        
-        # Check if email already exists
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered")
-            return render(request, 'registration/signup.html')
+        print(f"Form data: {first_name}, {last_name}, {phone_number}")
         
         # Create user
         try:
@@ -53,17 +59,15 @@ def signup_view(request):
                 first_name=first_name,
                 last_name=last_name
             )
-            print(f"User created: {user}")  # Debug print
-            
-            # Log user in
+            print(f"User created successfully: {user.email}")
             login(request, user)
             return redirect('dashboard')
             
         except Exception as e:
-            print(f"Error: {e}")  # Debug print
+            print(f"Error creating user: {str(e)}")
             messages.error(request, str(e))
             return render(request, 'registration/signup.html')
-            
+    
     return render(request, 'registration/signup.html')
 
 def logout_view(request):
