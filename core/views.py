@@ -3,7 +3,9 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .forms import SignUpForm, AssignmentForm
-from .models import Assignment
+from .models import Assignment, MeetingRequest
+from django.core.mail import send_mail
+from django.conf import settings
 from django.contrib import messages
 from django.views.decorators.csrf import ensure_csrf_cookie
 
@@ -127,3 +129,41 @@ def delete_assignment(request, assignment_id):
         assignment.delete()
         messages.success(request, 'Assignment deleted successfully')
     return redirect('my_assignments')
+
+@login_required
+def request_meeting(request, assignment_id):
+    if request.method == 'POST':
+        assignment = get_object_or_404(Assignment, id=assignment_id)
+        
+        # Create meeting request
+        meeting_request = MeetingRequest.objects.create(
+            assignment=assignment,
+            requester=request.user,
+            preferred_date=request.POST['preferred_date'],
+            preferred_time=request.POST['preferred_time'],
+            message=request.POST.get('message', '')
+        )
+        
+        # Send email notifications
+        subject = f'New Meeting Request for {assignment.title}'
+        message = f'''
+        You have a new meeting request from {request.user.get_full_name()}
+        Assignment: {assignment.title}
+        Preferred Date: {meeting_request.preferred_date}
+        Preferred Time: {meeting_request.preferred_time}
+        Message: {meeting_request.message}
+        '''
+        
+        # Send to assignment creator
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [assignment.creator.email],
+            fail_silently=True,
+        )
+        
+        messages.success(request, 'Meeting request sent successfully!')
+        return redirect('assignment_detail', assignment_id=assignment_id)
+        
+    return redirect('assignment_detail', assignment_id=assignment_id)

@@ -10,4 +10,5 @@ urlpatterns = [
     path('my-assignments/', views.my_assignments, name='my_assignments'),
     path('create-assignment/', views.create_assignment, name='create_assignment'),
     path('delete-assignment/<int:assignment_id>/', views.delete_assignment, name='delete_assignment'),
+    path('request-meeting/<int:assignment_id>/', views.request_meeting, name='request_meeting'), # added this line
 ]
