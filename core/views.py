@@ -17,7 +17,7 @@ def login_view(request):
             return redirect('dashboard')
         else:
             messages.error(request, 'Invalid email or password.')
-    return render(request, 'login.html')
+    return render(request, 'registration/login.html')  # Updated this line
 
 def signup_view(request):
     if request.method == 'POST':
