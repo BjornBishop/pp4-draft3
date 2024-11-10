@@ -29,15 +29,6 @@ SECRET_KEY = 'REMOVED_SECRET_KEY'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True # Only for development! 
 
-# Added CORS and CSRF settings
-CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.gitpod.io',
-    'https://*.ws-eu116.gitpod.io'
-]
-
-CSRF_COOKIE_SECURE = True # added this line
-
 ALLOWED_HOSTS = ['8000-bjornbishop-pp4draft3-t6cflytt14b.ws-eu116.gitpod.io']
 
 
@@ -145,3 +136,12 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Added CORS and CSRF settings
+CORS_ALLOW_ALL_ORIGINS = True  # Only for development!
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.gitpod.io',
+    'https://*.ws-eu116.gitpod.io'
+]
+
+CSRF_COOKIE_SECURE = True # added this line
