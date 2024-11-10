@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from .forms import SignUpForm, AssignmentForm
 from .models import Assignment
 from django.contrib import messages
@@ -21,16 +22,43 @@ def login_view(request):
 
 def signup_view(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.username = form.cleaned_data.get('email')
-            user.save()
+        # Get form data
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+        email = request.POST['email']
+        phone_number = request.POST['phone_number']
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+        
+        # Validate passwords match
+        if password1 != password2:
+            messages.error(request, "Passwords don't match")
+            return render(request, 'registration/signup.html')
+        
+        # Check if email already exists
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered")
+            return render(request, 'registration/signup.html')
+        
+        # Create user
+        try:
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password1,
+                first_name=first_name,
+                last_name=last_name
+            )
+            
+            # Log user in
             login(request, user)
             return redirect('dashboard')
-    else:
-        form = SignUpForm()
-    return render(request, 'signup.html', {'form': form})
+            
+        except Exception as e:
+            messages.error(request, "Error creating account")
+            return render(request, 'registration/signup.html')
+            
+    return render(request, 'registration/signup.html')
 
 def logout_view(request):
     logout(request)
@@ -81,3 +109,11 @@ def create_assignment(request):
             messages.error(request, 'Error creating assignment. Please try again.')
     
     return render(request, 'create_assignment.html')
+
+@login_required
+def delete_assignment(request, assignment_id):
+    if request.method == 'POST':
+        assignment = get_object_or_404(Assignment, id=assignment_id, creator=request.user)
+        assignment.delete()
+        messages.success(request, 'Assignment deleted successfully')
+    return redirect('my_assignments')
