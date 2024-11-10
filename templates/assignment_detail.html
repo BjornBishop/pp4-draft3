@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .assignment-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .assignment-header {
+        margin-bottom: 2rem;
+    }
+    
+    .assignment-detail {
+        margin-bottom: 1rem;
+    }
+    
+    .detail-label {
+        font-weight: bold;
+        color: #666;
+    }
+    
+    .back-button {
+        display: inline-block;
+        margin-top: 2rem;
+        text-decoration: none;
+    }
+</style>
+
+<div class="assignment-container">
+    <div class="assignment-header">
+        <h1>{{ assignment.title }}</h1>
+    </div>
+    
+    <div class="assignment-detail">
+        <div class="detail-label">Industry</div>
+        <div>{{ assignment.get_industry_display }}</div>
+    </div>
+    
+    <div class="assignment-detail">
+        <div class="detail-label">Duration</div>
+        <div>{{ assignment.duration }} days</div>
+    </div>
+    
+    <div class="assignment-detail">
+        <div class="detail-label">Rate</div>
+        <div>${{ assignment.rate }}/day</div>
+    </div>
+    
+    <div class="assignment-detail">
+        <div class="detail-label">Requirements</div>
+        <div>{{ assignment.requirements }}</div>
+    </div>
+    
+    <div class="assignment-detail">
+        <div class="detail-label">Description</div>
+        <div>{{ assignment.description }}</div>
+    </div>
+    
+    <a href="{% url 'dashboard' %}" class="back-button">
+        <button>Back to Dashboard</button>
+    </a>
+</div>
+{% endblock %}
