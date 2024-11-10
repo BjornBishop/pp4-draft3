@@ -61,6 +61,31 @@
     .datetime-picker {
         margin-bottom: 1rem;
     }
+    .time-slot {
+        display: inline-block;
+        margin: 5px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .time-slot.selected {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .time-slot.disabled {
+        background-color: #f5f5f5;
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    .timezone-info {
+        color: #666;
+        margin-bottom: 1rem;
+        font-size: 0.9em;
+    }
 </style>
 
 <div class="assignment-container">
@@ -97,7 +122,7 @@
         <button>Back to Dashboard</button>
     </a>
     {% if request.user != assignment.creator %}
-    <button onclick="openMeetingModal()" class="request-meeting-btn">Request Meeting</button>
+        <button onclick="openMeetingModal()" class="request-meeting-btn">Request Meeting</button>
     {% endif %}
 </div>
 
@@ -106,21 +131,35 @@
     <div class="modal-content">
         <span class="close" onclick="closeMeetingModal()">&times;</span>
         <h2>Request Meeting</h2>
-        <form method="post" action="{% url 'request_meeting' assignment.id %}">
+        <div class="timezone-info">All times shown in UTC+1 (London)</div>
+        
+        <form method="post" action="{% url 'request_meeting' assignment.id %}" id="meetingForm">
             {% csrf_token %}
             <div class="datetime-picker">
-                <label for="preferred_date">Preferred Date:</label>
-                <input type="date" id="preferred_date" name="preferred_date" required min="{{ today|date:'Y-m-d' }}">
+                <label for="preferred_date">Select Date:</label>
+                <input type="date" id="preferred_date" name="preferred_date" required
+                       onchange="updateAvailableTimeSlots()">
             </div>
-            <div class="datetime-picker">
-                <label for="preferred_time">Preferred Time:</label>
-                <input type="time" id="preferred_time" name="preferred_time" required>
+
+            <div class="time-slots">
+                <label>Select Time:</label>
+                <div id="morningSlots" class="slots-container">
+                    <h4>Morning</h4>
+                    <div class="time-slots-grid"></div>
+                </div>
+                <div id="afternoonSlots" class="slots-container">
+                    <h4>Afternoon</h4>
+                    <div class="time-slots-grid"></div>
+                </div>
             </div>
+
+            <input type="hidden" id="preferred_time" name="preferred_time">
+            
             <div class="form-group">
                 <label for="message">Message (optional):</label>
                 <textarea id="message" name="message" rows="4"></textarea>
             </div>
-            <button type="submit">Send Request</button>
+            <button type="submit" id="submitButton" disabled>Send Request</button>
         </form>
     </div>
 </div>
