@@ -1,9 +1,16 @@
 image:
-  file: .gitpod.dockerfile
+  file: .gitpod.Dockerfile
+
 tasks:
-  - init: . ${GITPOD_REPO_ROOT}/.vscode/init_tasks.sh
-    command: /home/gitpod/.pg_ctl/bin/pg_start > /dev/null
-  - command: . ${GITPOD_REPO_ROOT}/.vscode/uptime.sh &
+  - init: |
+      psql -c "CREATE DATABASE sagacity_db;"
+  - command: |
+      psql -c "ALTER USER gitpod WITH PASSWORD 'gitpod';"
+
+ports:
+  - port: 5432
+    onOpen: ignore
+
 vscode:
   extensions:
     - ms-python.python
