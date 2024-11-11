@@ -7,3 +7,57 @@ __pycache__/
 node_modules/
 .github/
 cloudinary_python.txt
+*.pyc
+
+# Python
+*.py[cod]
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Environment variables
+.env
+*.env
+.venv
+env/
+venv/
+ENV/
+/workspace/pp4-draft3/.env
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Secret Key
+*.secret
+
+# Database
+*.db
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db

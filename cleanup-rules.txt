@@ -1,3 +1,0 @@
-django-insecure-m@eql_4v0$6^_40v9n&!&)q$aurny+6kke_eh!bgm2%zl1gq^d==>REMOVED_SECRET_KEY
-jceBCdeGZP9RDeUNCfM4jIQ39Cx0jtG51QgcwDwc==>REMOVED_API_KEY
-password123==>REMOVED_DB_PASSWORD
