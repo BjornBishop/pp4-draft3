@@ -39,10 +39,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
-
-ALLOWED_HOSTS = ['8000-bjornbishop-pp4draft3-t6cflytt14b.ws-eu116.gitpod.io']
-
-
 # Application definition
 
 INSTALLED_APPS = [

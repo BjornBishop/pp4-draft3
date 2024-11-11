@@ -8,3 +8,4 @@ django-allauth>=0.57.0
 
 pytest>=7.4.0  # Testing framework
 pytest-django>=4.5.2  # Django test integration
+pytz
