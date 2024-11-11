@@ -137,9 +137,12 @@ def request_meeting(request, assignment_id):
     if request.method == 'POST':
         assignment = get_object_or_404(Assignment, id=assignment_id)
         
-        # Get the date and time from the form
-        preferred_date = request.POST['preferred_date']
-        preferred_time = request.POST['preferred_time']
+        # Get the site admin (you can set this in your .env file)
+        admin_email = os.getenv('ADMIN_EMAIL', 'your-email@example.com')
+        admin_user = User.objects.get(email=admin_email)
+        
+        preferred_date = request.POST.get('preferred_date')
+        preferred_time = request.POST.get('preferred_time')
         
         # Validate weekday
         date_obj = datetime.strptime(preferred_date, '%Y-%m-%d')
@@ -147,47 +150,42 @@ def request_meeting(request, assignment_id):
             messages.error(request, 'Weekend dates are not available for meetings.')
             return redirect('assignment_detail', assignment_id=assignment_id)
         
-        # Validate time slot
-        time_obj = datetime.strptime(preferred_time, '%H:%M').time()
-        morning_start = datetime.strptime('10:00', '%H:%M').time()
-        morning_end = datetime.strptime('11:30', '%H:%M').time()
-        afternoon_start = datetime.strptime('13:00', '%H:%M').time()
-        afternoon_end = datetime.strptime('17:00', '%H:%M').time()
-        
-        if not ((morning_start <= time_obj <= morning_end) or 
-                (afternoon_start <= time_obj <= afternoon_end)):
-            messages.error(request, 'Please select a valid time slot.')
-            return redirect('assignment_detail', assignment_id=assignment_id)
-        
-        # Create meeting request
-        meeting_request = MeetingRequest.objects.create(
-            assignment=assignment,
-            requester=request.user,
-            preferred_date=preferred_date,
-            preferred_time=preferred_time,
-            timezone='Europe/London',
-            message=request.POST.get('message', '')
-        )
-        
-        # Send email notifications with timezone information
-        subject = f'New Meeting Request for {assignment.title}'
-        message = f'''
-        You have a new meeting request from {request.user.get_full_name()}
-        Assignment: {assignment.title}
-        Preferred Date: {meeting_request.preferred_date}
-        Preferred Time: {meeting_request.preferred_time} (UTC+1 London)
-        Message: {meeting_request.message}
-        '''
-        
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [assignment.creator.email],
-            fail_silently=True,
-        )
-        
-        messages.success(request, 'Meeting request sent successfully!')
+        try:
+            meeting_request = MeetingRequest.objects.create(
+                assignment=assignment,
+                requester=request.user,
+                preferred_date=preferred_date,
+                preferred_time=preferred_time,
+                message=request.POST.get('message', '')
+            )
+            
+            # Send email to admin
+            subject = f'New Meeting Request: {assignment.title}'
+            message = f'''
+            New meeting request details:
+            
+            Requester: {request.user.get_full_name()} ({request.user.email})
+            Assignment: {assignment.title}
+            Date: {preferred_date}
+            Time: {preferred_time} (UTC+1 London)
+            
+            Message from requester:
+            {meeting_request.message}
+            '''
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [admin_email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'Meeting request sent successfully! You will receive a confirmation email.')
+            
+        except Exception as e:
+            messages.error(request, 'Error creating meeting request. Please try again.')
+            
         return redirect('assignment_detail', assignment_id=assignment_id)
-        
+    
     return redirect('assignment_detail', assignment_id=assignment_id)
