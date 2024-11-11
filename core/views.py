@@ -13,6 +13,22 @@ from datetime import datetime
 
 # Create your views here.
 
+def dashboard(request):
+    fresh_assignments = Assignment.objects.filter(
+        status='ACTIVE'
+    ).order_by('-created_at')[:15]  # 3 columns * 5 rows = 15 items
+    
+    previous_assignments = Assignment.objects.filter(
+        status='DEACTIVATED'
+    ).order_by('-created_at')[:15]  # 3 columns * 5 rows = 15 items
+
+    context = {
+        'fresh_assignments': fresh_assignments,
+        'previous_assignments': previous_assignments,
+    }
+    return render(request, 'dashboard.html', context)
+
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -125,12 +141,21 @@ def create_assignment(request):
     return render(request, 'create_assignment.html')
 
 @login_required
+def deactivate_assignment(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    if request.user == assignment.client:
+        assignment.status = 'DEACTIVATED'
+        assignment.save()
+        messages.success(request, 'Assignment deactivated successfully.')
+    return redirect('dashboard')
+
+@login_required
 def delete_assignment(request, assignment_id):
-    if request.method == 'POST':
-        assignment = get_object_or_404(Assignment, id=assignment_id, creator=request.user)
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    if request.user == assignment.client:
         assignment.delete()
-        messages.success(request, 'Assignment deleted successfully')
-    return redirect('my_assignments')
+        messages.success(request, 'Assignment deleted successfully.')
+    return redirect('dashboard')
 
 @login_required
 def request_meeting(request, assignment_id):

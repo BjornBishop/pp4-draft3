@@ -3,11 +3,12 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import pytz
 
-# Create your models here.
-
-# Assignment model goes here 
-
 class Assignment(models.Model):
+    STATUS_CHOICES = [
+        ('ACTIVE', 'Active'),
+        ('DEACTIVATED', 'Deactivated'),
+        ('COMPLETED', 'Completed'),
+    ]
     INDUSTRY_CHOICES = [
         ('FS', 'Financial Services'),
         ('COM', 'Commercial'),
@@ -22,11 +23,10 @@ class Assignment(models.Model):
     requirements = models.TextField()
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')  # Added this line
 
     def __str__(self):
         return self.title
-
-# Meeting request model goes here
 
 class MeetingRequest(models.Model):
     assignment = models.ForeignKey('Assignment', on_delete=models.CASCADE)
