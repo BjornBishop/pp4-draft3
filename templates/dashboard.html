@@ -2,51 +2,110 @@
 
 {% block content %}
 <div class="container">
-    <div class="dashboard-stats">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Total Assignments</h5>
-                        <p class="card-text display-4">{{ total_assignments }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Active Assignments</h5>
-                        <p class="card-text display-4">{{ active_assignments }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h5 class="card-title">Completed Assignments</h5>
-                        <p class="card-text display-4">{{ completed_assignments }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard</h2>
         <a href="{% url 'create_assignment' %}" class="btn btn-primary">Create New Assignment</a>
     </div>
 
-    <h3 class="mb-4">Recent Assignments</h3>
-    {% for assignment in recent_assignments %}
-        <div class="assignment-card">
-            <h4><a href="{% url 'assignment_detail' assignment.id %}" class="text-decoration-none">{{ assignment.title }}</a></h4>
-            <div class="assignment-meta">
-                <span class="badge bg-primary">{{ assignment.status }}</span>
-                <span class="ms-2">${{ assignment.budget }}</span>
-            </div>
-            <p class="assignment-description">{{ assignment.description|truncatewords:30 }}</p>
+    <!-- Fresh Assignments Section -->
+    <section class="mb-5">
+        <h3 class="mb-3">Fresh Assignments</h3>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for assignment in fresh_assignments|slice:":15" %}
+                <div class="col">
+                    <div class="assignment-card h-100">
+                        <h4><a href="{% url 'assignment_detail' assignment.id %}" class="text-decoration-none">{{ assignment.title }}</a></h4>
+                        <div class="assignment-meta">
+                            <span class="badge bg-primary">{{ assignment.status }}</span>
+                            <span class="ms-2">${{ assignment.budget }}</span>
+                        </div>
+                        <p class="assignment-description">{{ assignment.description|truncatewords:30 }}</p>
+                        {% if user == assignment.client %}
+                            <div class="assignment-actions mt-auto">
+                                <a href="{% url 'edit_assignment' assignment.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#deactivateModal{{ assignment.id }}">
+                                    Deactivate
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ assignment.id }}">
+                                    Delete
+                                </button>
+                            </div>
+
+                            <!-- Deactivate Modal -->
+                            <div class="modal fade" id="deactivateModal{{ assignment.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Deactivate Assignment</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to deactivate "{{ assignment.title }}"?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{% url 'deactivate_assignment' assignment.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-warning">Deactivate</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Delete Modal -->
+                            <div class="modal fade" id="deleteModal{{ assignment.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Assignment</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to delete "{{ assignment.title }}"?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="{% url 'delete_assignment' assignment.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="text-muted">No fresh assignments available.</p>
+                </div>
+            {% endfor %}
         </div>
-    {% empty %}
-        <p class="text-muted">No assignments found.</p>
-    {% endfor %}
+    </section>
+
+    <!-- Previous Assignments Section -->
+    <section>
+        <h3 class="mb-3">Previous Assignments</h3>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for assignment in previous_assignments|slice:":15" %}
+                <div class="col">
+                    <div class="assignment-card h-100 bg-light">
+                        <h4><a href="{% url 'assignment_detail' assignment.id %}" class="text-decoration-none">{{ assignment.title }}</a></h4>
+                        <div class="assignment-meta">
+                            <span class="badge bg-secondary">Deactivated</span>
+                            <span class="ms-2">${{ assignment.budget }}</span>
+                        </div>
+                        <p class="assignment-description">{{ assignment.description|truncatewords:30 }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="text-muted">No previous assignments available.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 </div>
 {% endblock %}

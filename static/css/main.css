@@ -58,6 +58,30 @@ body {
     line-height: 1.6;
 }
 
+.assignment-card {
+    height: 100%;
+    padding: 1.25rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.assignment-actions {
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.assignment-actions .btn {
+    margin-right: 0.5rem;
+}
+
+.bg-light .assignment-card {
+    background-color: #f8f9fa;
+}
+
 /* Dashboard styles */
 .dashboard-stats {
     background-color: #f8f9fa;
