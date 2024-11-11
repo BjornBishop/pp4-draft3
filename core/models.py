@@ -33,7 +33,7 @@ class MeetingRequest(models.Model):
     requester = models.ForeignKey(User, related_name='meeting_requests', on_delete=models.CASCADE)
     preferred_date = models.DateField()
     preferred_time = models.TimeField()
-    timezone = models.CharField(max_length=50, default='Europe/London')  # UTC+1 for Sweden
+    timezone = models.CharField(max_length=50, default='Europe/London')
     message = models.TextField(blank=True)
     status = models.CharField(
         max_length=20,
@@ -46,5 +46,8 @@ class MeetingRequest(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
-        return f"Meeting request for {self.assignment.title} by {self.requester.email}"
+        return f"Meeting request from {self.requester.email}"
