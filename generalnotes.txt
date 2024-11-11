@@ -1,0 +1,4 @@
+to run the requirements.txt:
+    pip install -r requirements.txt
+
+to start the server:
