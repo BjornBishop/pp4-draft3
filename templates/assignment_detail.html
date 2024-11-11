@@ -158,55 +158,127 @@
 <div id="meetingModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeMeetingModal()">&times;</span>
-        <h2>Request Meeting</h2>
-        <div class="timezone-info">All times shown in UTC+1 (London)</div>
+        <h2>Request Meeting with Site Admin</h2>
         
+        <div class="meeting-note">
+            <p>📌 All meetings are scheduled with the site administrator.</p>
+            <p>⏰ Time zone: UTC+1 (London)</p>
+            <p>📅 Available on weekdays only</p>
+        </div>
+
         <form method="post" action="{% url 'request_meeting' assignment.id %}" id="meetingForm">
             {% csrf_token %}
-            <div class="datetime-picker">
+            <div class="form-group">
                 <label for="preferred_date">Select Date:</label>
                 <input type="date" id="preferred_date" name="preferred_date" required
                        onchange="updateAvailableTimeSlots()">
             </div>
 
-            <div class="time-slots">
-                <label>Select Time:</label>
-                <div id="morningSlots" class="slots-container">
-                    <h4>Morning</h4>
-                    <div class="time-slots-grid"></div>
-                </div>
-                <div id="afternoonSlots" class="slots-container">
-                    <h4>Afternoon</h4>
-                    <div class="time-slots-grid"></div>
-                </div>
+            <div class="time-section">
+                <h4>Morning Slots (10:00 - 11:30)</h4>
+                <div class="time-slots" id="morningSlots"></div>
+                
+                <h4>Afternoon Slots (13:00 - 17:00)</h4>
+                <div class="time-slots" id="afternoonSlots"></div>
             </div>
 
             <input type="hidden" id="preferred_time" name="preferred_time">
             
             <div class="form-group">
                 <label for="message">Message (optional):</label>
-                <textarea id="message" name="message" rows="4"></textarea>
+                <textarea id="message" name="message" rows="4" 
+                          placeholder="Add any specific topics you'd like to discuss..."></textarea>
             </div>
-            <button type="submit" id="submitButton" disabled>Send Request</button>
+
+            <button type="submit" id="submitButton" disabled>Request Meeting</button>
         </form>
     </div>
 </div>
 
 <script>
-    function openMeetingModal() {
-        document.getElementById('meetingModal').style.display = 'block';
-    }
+const timeSlots = {
+    morning: [
+        '10:00', '10:30', '11:00', '11:30'
+    ],
+    afternoon: [
+        '13:00', '13:30', '14:00', '14:30', 
+        '15:00', '15:30', '16:00', '16:30'
+    ]
+};
 
-    function closeMeetingModal() {
-        document.getElementById('meetingModal').style.display = 'none';
-    }
+function createTimeSlots() {
+    const morningContainer = document.getElementById('morningSlots');
+    const afternoonContainer = document.getElementById('afternoonSlots');
+    
+    morningContainer.innerHTML = '';
+    afternoonContainer.innerHTML = '';
+    
+    timeSlots.morning.forEach(time => {
+        const slot = document.createElement('div');
+        slot.className = 'time-slot';
+        slot.textContent = time;
+        slot.onclick = () => selectTimeSlot(slot);
+        morningContainer.appendChild(slot);
+    });
+    
+    timeSlots.afternoon.forEach(time => {
+        const slot = document.createElement('div');
+        slot.className = 'time-slot';
+        slot.textContent = time;
+        slot.onclick = () => selectTimeSlot(slot);
+        afternoonContainer.appendChild(slot);
+    });
+}
 
-    // Close modal if clicking outside of it
-    window.onclick = function (event) {
-        var modal = document.getElementById('meetingModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
+function selectTimeSlot(element) {
+    // Clear previous selection
+    document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.classList.remove('selected');
+    });
+    
+    // Select new slot
+    element.classList.add('selected');
+    document.getElementById('preferred_time').value = element.textContent;
+    document.getElementById('submitButton').disabled = false;
+}
+
+function updateAvailableTimeSlots() {
+    const dateInput = document.getElementById('preferred_date');
+    const selectedDate = new Date(dateInput.value);
+    
+    // Disable weekends
+    if (selectedDate.getDay() === 0 || selectedDate.getDay() === 6) {
+        alert('Weekend dates are not available for meetings. Please select a weekday.');
+        dateInput.value = '';
+        document.getElementById('submitButton').disabled = true;
+        return;
     }
+    
+    createTimeSlots();
+}
+
+function openMeetingModal() {
+    document.getElementById('meetingModal').style.display = 'block';
+    // Set min date to today
+    const dateInput = document.getElementById('preferred_date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    dateInput.value = today;
+    updateAvailableTimeSlots();
+}
+
+function closeMeetingModal() {
+    document.getElementById('meetingModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('meetingModal');
+    if (event.target == modal) {
+        closeMeetingModal();
+    }
+}
+
+// Initialize time slots when the modal opens
+document.addEventListener('DOMContentLoaded', createTimeSlots);
 </script>
 {% endblock %}
